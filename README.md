@@ -21,6 +21,23 @@ This repository contains a ready-to-use database schema for a **multi-vendor eCo
 ├── README.md # This file
 ├── LICENSE
 
+.
+└── Edit me to generate/
+    ├── a/
+    │   └── nice/
+    │       └── tree/
+    │           ├── diagram!
+    │           └── :)
+    └── Use indentation/
+        ├── to indicate/
+        │   ├── file
+        │   ├── and
+        │   ├── folder
+        │   └── nesting.
+        └── You can even/
+            └── use/
+                ├── markdown
+                └── bullets!
 
 ---
 
