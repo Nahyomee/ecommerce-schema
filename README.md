@@ -42,7 +42,7 @@ This repository contains a ready-to-use database schema for a **multi-vendor eCo
 
 1. Clone the repo:
 ```bash
-git clone https://github.com/nahyomee/ecommerce-schema.git
+git clone https://github.com/Nahyomee/ecommerce-schema.git
 cd ecommerce-schema   
 ```
 2. Install Laravel dependencies
@@ -70,7 +70,7 @@ Visual representation is available in /erd/ecommerce_erd.png.
 
 
 ## ✨ Credits
-Created by @nahyomee. Inspired by real-world eCommerce systems.
+Created by @Nahyomee. Inspired by real-world eCommerce systems.
 
 
 ## License
