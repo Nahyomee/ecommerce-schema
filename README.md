@@ -12,32 +12,16 @@ This repository contains a ready-to-use database schema for a **multi-vendor eCo
 ---
 
 ## 📦 What's Inside
-├── database/
-│ └── migrations/ # Laravel migrations for all tables
-├── sql/
+```
+├── 📁database/
+│ └── 📁migrations/ # Laravel migrations for all tables
+├── 📁sql/
 │ └── schema_dump.sql # SQL export of schema
-├── erd/
+├── 📁erd/
 │ └── ecommerce_erd.png # Visual ERD diagram
 ├── README.md # This file
-├── LICENSE
+```
 
-.
-└── Edit me to generate/
-    ├── a/
-    │   └── nice/
-    │       └── tree/
-    │           ├── diagram!
-    │           └── :)
-    └── Use indentation/
-        ├── to indicate/
-        │   ├── file
-        │   ├── and
-        │   ├── folder
-        │   └── nesting.
-        └── You can even/
-            └── use/
-                ├── markdown
-                └── bullets!
 
 ---
 
