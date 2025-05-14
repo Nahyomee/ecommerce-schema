@@ -5,6 +5,7 @@ A lot of times, I do a lot of ecommerce projects and I just thought I should cre
 This repository contains a ready-to-use database schema for a **multi-vendor eCommerce platform**, built with Laravel migrations. It includes:
 
 - Laravel migration files
+- Seeders
 - SQL dump
 - Entity Relationship Diagram (ERD)
 - Setup instructions
@@ -14,7 +15,8 @@ This repository contains a ready-to-use database schema for a **multi-vendor eCo
 ## 📦 What's Inside
 ```
 ├── 📁database/
-│ └── 📁migrations/ # Laravel migrations for all tables
+│ └── 📁migrations/ # Migrations for all tables
+│ └── 📁seeders/ # Seeders for all tables
 ├── 📁sql/
 │ └── schema_dump.sql # SQL export of schema
 ├── 📁erd/
@@ -33,9 +35,11 @@ This repository contains a ready-to-use database schema for a **multi-vendor eCo
 - Products, Product Images & Product Variants
 - Orders & Order Items
 - Carts & Cart Items
+- Wishlist
 - Payments
-- Reviews
+- Reviews (Products and Vendors)
 - Customer Addresses
+- Coupons
 
 ---
 
@@ -58,6 +62,10 @@ php artisan key:generate
 4. Run the migrations:
 ```bash
 php artisan migrate
+```
+5. Run the seeders
+```bash
+php artisan db:seed
 ```
 ## 🧪 Using SQLite for Fast Testing
 Instead of MySQL, you can use SQLite by updating .env like so:

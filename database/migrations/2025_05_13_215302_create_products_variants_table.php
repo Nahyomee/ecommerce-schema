@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products_variants', function (Blueprint $table) {
+        Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->string('variant')->nullable();
+            $table->string('name');
+            $table->decimal('price', 12, 2);
+            $table->integer('stock')->default(0);
+            $table->string('sku')->nullable();
             $table->timestamps();
         });
     }

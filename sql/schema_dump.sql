@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 13, 2025 at 11:20 PM
+-- Generation Time: May 14, 2025 at 11:47 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.2.17
 
@@ -68,8 +68,8 @@ CREATE TABLE `cart_items` (
   `id` bigint UNSIGNED NOT NULL,
   `cart_id` bigint UNSIGNED NOT NULL,
   `product_id` bigint UNSIGNED NOT NULL,
+  `product_variant_id` bigint UNSIGNED DEFAULT NULL,
   `quantity` int NOT NULL,
-  `variant` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -85,6 +85,42 @@ CREATE TABLE `categories` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `parent_id` bigint UNSIGNED DEFAULT NULL,
   `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `slug` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `coupons`
+--
+
+CREATE TABLE `coupons` (
+  `id` bigint UNSIGNED NOT NULL,
+  `code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('fixed','percent') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` decimal(8,2) NOT NULL,
+  `min_order_amount` decimal(8,2) DEFAULT NULL,
+  `usage_limit` int UNSIGNED DEFAULT NULL,
+  `used` int UNSIGNED NOT NULL DEFAULT '0',
+  `valid_from` datetime DEFAULT NULL,
+  `valid_until` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `coupon_users`
+--
+
+CREATE TABLE `coupon_users` (
+  `id` bigint UNSIGNED NOT NULL,
+  `coupon_id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `times_used` int UNSIGNED NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -107,6 +143,7 @@ CREATE TABLE `customer_addresses` (
   `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `country` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_default` tinyint(1) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -189,11 +226,15 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (8, '2025_05_13_215302_create_products_variants_table', 1),
 (9, '2025_05_13_215349_create_carts_table', 1),
 (10, '2025_05_13_215356_create_cart_items_table', 1),
-(11, '2025_05_13_215527_create_orders_table', 1),
-(12, '2025_05_13_215539_create_order_items_table', 1),
-(13, '2025_05_13_215739_create_payments_table', 1),
-(14, '2025_05_13_215802_create_reviews_table', 1),
-(15, '2025_05_13_215846_create_customer_addresses_table', 1);
+(11, '2025_05_13_215364_create_coupons_table', 1),
+(12, '2025_05_13_215527_create_orders_table', 1),
+(13, '2025_05_13_215539_create_order_items_table', 1),
+(14, '2025_05_13_215739_create_payments_table', 1),
+(15, '2025_05_13_215802_create_reviews_table', 1),
+(16, '2025_05_13_215846_create_customer_addresses_table', 1),
+(17, '2025_05_13_235045_create_wishlists_table', 1),
+(18, '2025_05_14_095542_create_vendor_reviews_table', 1),
+(19, '2025_05_14_095801_create_coupon_users_table', 1);
 
 -- --------------------------------------------------------
 
@@ -214,6 +255,8 @@ CREATE TABLE `orders` (
   `phone_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` enum('pending','processing','shipped','delivered','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `total` decimal(10,2) NOT NULL,
+  `coupon_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount_amount` decimal(8,2) NOT NULL DEFAULT '0.00',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -228,9 +271,11 @@ CREATE TABLE `order_items` (
   `id` bigint UNSIGNED NOT NULL,
   `order_id` bigint UNSIGNED NOT NULL,
   `product_id` bigint UNSIGNED NOT NULL,
+  `product_variant_id` bigint UNSIGNED NOT NULL,
+  `product_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` int NOT NULL,
+  `variant_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
-  `variant` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -260,6 +305,7 @@ CREATE TABLE `payments` (
   `payment_reference` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `status` enum('pending','paid','failed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `paid_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -286,10 +332,10 @@ CREATE TABLE `products` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `products_images`
+-- Table structure for table `product_images`
 --
 
-CREATE TABLE `products_images` (
+CREATE TABLE `product_images` (
   `id` bigint UNSIGNED NOT NULL,
   `product_id` bigint UNSIGNED NOT NULL,
   `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -301,13 +347,16 @@ CREATE TABLE `products_images` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `products_variants`
+-- Table structure for table `product_variants`
 --
 
-CREATE TABLE `products_variants` (
+CREATE TABLE `product_variants` (
   `id` bigint UNSIGNED NOT NULL,
   `product_id` bigint UNSIGNED NOT NULL,
-  `variant` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `price` decimal(12,2) NOT NULL,
+  `stock` int NOT NULL DEFAULT '0',
+  `sku` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -378,6 +427,36 @@ CREATE TABLE `vendors` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor_reviews`
+--
+
+CREATE TABLE `vendor_reviews` (
+  `id` bigint UNSIGNED NOT NULL,
+  `vendor_id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `rating` tinyint UNSIGNED NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wishlists`
+--
+
+CREATE TABLE `wishlists` (
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `product_id` bigint UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -407,7 +486,8 @@ ALTER TABLE `carts`
 ALTER TABLE `cart_items`
   ADD PRIMARY KEY (`id`),
   ADD KEY `cart_items_cart_id_foreign` (`cart_id`),
-  ADD KEY `cart_items_product_id_foreign` (`product_id`);
+  ADD KEY `cart_items_product_id_foreign` (`product_id`),
+  ADD KEY `cart_items_product_variant_id_foreign` (`product_variant_id`);
 
 --
 -- Indexes for table `categories`
@@ -415,6 +495,21 @@ ALTER TABLE `cart_items`
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`),
   ADD KEY `categories_parent_id_foreign` (`parent_id`);
+
+--
+-- Indexes for table `coupons`
+--
+ALTER TABLE `coupons`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `coupons_code_unique` (`code`);
+
+--
+-- Indexes for table `coupon_users`
+--
+ALTER TABLE `coupon_users`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `coupon_users_coupon_id_foreign` (`coupon_id`),
+  ADD KEY `coupon_users_user_id_foreign` (`user_id`);
 
 --
 -- Indexes for table `customer_addresses`
@@ -462,7 +557,8 @@ ALTER TABLE `orders`
 ALTER TABLE `order_items`
   ADD PRIMARY KEY (`id`),
   ADD KEY `order_items_order_id_foreign` (`order_id`),
-  ADD KEY `order_items_product_id_foreign` (`product_id`);
+  ADD KEY `order_items_product_id_foreign` (`product_id`),
+  ADD KEY `order_items_product_variant_id_foreign` (`product_variant_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -487,18 +583,18 @@ ALTER TABLE `products`
   ADD KEY `products_category_id_foreign` (`category_id`);
 
 --
--- Indexes for table `products_images`
+-- Indexes for table `product_images`
 --
-ALTER TABLE `products_images`
+ALTER TABLE `product_images`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `products_images_product_id_foreign` (`product_id`);
+  ADD KEY `product_images_product_id_foreign` (`product_id`);
 
 --
--- Indexes for table `products_variants`
+-- Indexes for table `product_variants`
 --
-ALTER TABLE `products_variants`
+ALTER TABLE `product_variants`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `products_variants_product_id_foreign` (`product_id`);
+  ADD KEY `product_variants_product_id_foreign` (`product_id`);
 
 --
 -- Indexes for table `reviews`
@@ -531,6 +627,22 @@ ALTER TABLE `vendors`
   ADD KEY `vendors_user_id_foreign` (`user_id`);
 
 --
+-- Indexes for table `vendor_reviews`
+--
+ALTER TABLE `vendor_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `vendor_reviews_vendor_id_foreign` (`vendor_id`),
+  ADD KEY `vendor_reviews_user_id_foreign` (`user_id`);
+
+--
+-- Indexes for table `wishlists`
+--
+ALTER TABLE `wishlists`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `wishlists_user_id_foreign` (`user_id`),
+  ADD KEY `wishlists_product_id_foreign` (`product_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -550,6 +662,18 @@ ALTER TABLE `cart_items`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `coupons`
+--
+ALTER TABLE `coupons`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `coupon_users`
+--
+ALTER TABLE `coupon_users`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -574,7 +698,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -601,15 +725,15 @@ ALTER TABLE `products`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `products_images`
+-- AUTO_INCREMENT for table `product_images`
 --
-ALTER TABLE `products_images`
+ALTER TABLE `product_images`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `products_variants`
+-- AUTO_INCREMENT for table `product_variants`
 --
-ALTER TABLE `products_variants`
+ALTER TABLE `product_variants`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -631,6 +755,18 @@ ALTER TABLE `vendors`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `vendor_reviews`
+--
+ALTER TABLE `vendor_reviews`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `wishlists`
+--
+ALTER TABLE `wishlists`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -645,13 +781,21 @@ ALTER TABLE `carts`
 --
 ALTER TABLE `cart_items`
   ADD CONSTRAINT `cart_items_cart_id_foreign` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `cart_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `cart_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cart_items_product_variant_id_foreign` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `categories`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_parent_id_foreign` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `coupon_users`
+--
+ALTER TABLE `coupon_users`
+  ADD CONSTRAINT `coupon_users_coupon_id_foreign` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `coupon_users_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `customer_addresses`
@@ -670,7 +814,8 @@ ALTER TABLE `orders`
 --
 ALTER TABLE `order_items`
   ADD CONSTRAINT `order_items_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_items_product_variant_id_foreign` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `payments`
@@ -686,16 +831,16 @@ ALTER TABLE `products`
   ADD CONSTRAINT `products_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `products_images`
+-- Constraints for table `product_images`
 --
-ALTER TABLE `products_images`
-  ADD CONSTRAINT `products_images_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+ALTER TABLE `product_images`
+  ADD CONSTRAINT `product_images_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `products_variants`
+-- Constraints for table `product_variants`
 --
-ALTER TABLE `products_variants`
-  ADD CONSTRAINT `products_variants_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+ALTER TABLE `product_variants`
+  ADD CONSTRAINT `product_variants_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reviews`
@@ -709,6 +854,20 @@ ALTER TABLE `reviews`
 --
 ALTER TABLE `vendors`
   ADD CONSTRAINT `vendors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `vendor_reviews`
+--
+ALTER TABLE `vendor_reviews`
+  ADD CONSTRAINT `vendor_reviews_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `vendor_reviews_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `wishlists`
+--
+ALTER TABLE `wishlists`
+  ADD CONSTRAINT `wishlists_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `wishlists_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

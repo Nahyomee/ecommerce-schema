@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProductVariant extends Model
-{
+class Wishlist extends Model
+{ 
     protected $fillable = [
+        'user_id',
         'product_id',
-        'name',
-        'price',
-        'stock',
-        'sku',
-        'image',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function product()
     {

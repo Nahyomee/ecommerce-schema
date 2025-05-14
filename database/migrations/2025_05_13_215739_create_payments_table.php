@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('payment_reference')->unique();
             $table->decimal('amount', 10, 2);
             $table->enum('status', ['pending', 'paid', 'failed'])->default('pending');
+            $table->dateTime('paid_at')->nullable();
             $table->timestamps();
         });
     }

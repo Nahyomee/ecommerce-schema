@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
             $table->string('country');
             $table->string('phone_number');
+            $table->boolean('is_default');
             $table->timestamps();
         });
     }

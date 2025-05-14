@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('phone_number');
             $table->enum('status', ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
             $table->decimal('total', 10, 2);
+            $table->string('coupon_code')->nullable();
+            $table->decimal('discount_amount', 8, 2)->default(0);
             $table->timestamps();
         });
     }

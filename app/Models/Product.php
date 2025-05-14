@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'vendor_id',
         'category_id',
@@ -19,6 +21,16 @@ class Product extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 
     public function category()

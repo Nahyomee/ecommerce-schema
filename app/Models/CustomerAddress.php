@@ -8,7 +8,8 @@ class CustomerAddress extends Model
 {
     protected $fillable = [
         'user_id',
-        'address_name',
+        'type',
+        'name',
         'address_line1',
         'address_line2',
         'city',
@@ -16,6 +17,7 @@ class CustomerAddress extends Model
         'postal_code',
         'country',
         'phone_number',
+        'is_default'
     ];
 
     public function user()
