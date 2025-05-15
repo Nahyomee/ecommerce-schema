@@ -211,31 +211,6 @@ CREATE TABLE `migrations` (
   `batch` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `migrations`
---
-
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '0001_01_01_000000_create_users_table', 1),
-(2, '0001_01_01_000001_create_cache_table', 1),
-(3, '0001_01_01_000002_create_jobs_table', 1),
-(4, '2025_05_13_214212_create_vendors_table', 1),
-(5, '2025_05_13_214315_create_categories_table', 1),
-(6, '2025_05_13_214324_create_products_table', 1),
-(7, '2025_05_13_215130_create_products_images_table', 1),
-(8, '2025_05_13_215302_create_products_variants_table', 1),
-(9, '2025_05_13_215349_create_carts_table', 1),
-(10, '2025_05_13_215356_create_cart_items_table', 1),
-(11, '2025_05_13_215364_create_coupons_table', 1),
-(12, '2025_05_13_215527_create_orders_table', 1),
-(13, '2025_05_13_215539_create_order_items_table', 1),
-(14, '2025_05_13_215739_create_payments_table', 1),
-(15, '2025_05_13_215802_create_reviews_table', 1),
-(16, '2025_05_13_215846_create_customer_addresses_table', 1),
-(17, '2025_05_13_235045_create_wishlists_table', 1),
-(18, '2025_05_14_095542_create_vendor_reviews_table', 1),
-(19, '2025_05_14_095801_create_coupon_users_table', 1);
-
 -- --------------------------------------------------------
 
 --
